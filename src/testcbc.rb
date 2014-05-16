@@ -10,4 +10,5 @@ lp.constraint(x * 2 + y <= 1000)
 
 lp.maximise(x * 2 + y)
 
+lp.write_lp(STDOUT)
 lp.solve

@@ -7,17 +7,9 @@ module RubyCBC
     end
     
     def to_s
-      s = ""
-      @weights.each do |var, weight|
-        if s.empty?
-          s << "#{weight} #{var}"
-        elsif weight < 0
-          s << " - #{weight.abs} #{var}"
-        else
-          s << " + #{weight} #{var}"
-        end
-      end
-      s << " >= 0"
+      s = (@linear * -1).to_s(true)
+      s << " <= "
+      s << @linear.constant.to_s
       s
     end
   end

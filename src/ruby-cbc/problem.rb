@@ -85,20 +85,25 @@ module RubyCBC
     
     def solve
       tmp = Tempfile.new(['lp', '.lp'])
+      tmp_sol = Tempfile.new(['lp', '.sol'])
+      tmp_sol.close
       
       begin
         write_lp(tmp)
         tmp.close
         
-        @result_line = `cbc #{tmp.path}`[/^Result - (.*)$/]
-        puts @result_line
+        `cbc #{tmp.path} quiet branch solution #{tmp_sol.path}`
+        @result_lines = File.read(tmp_sol.path)
+        puts @result_lines
       ensure
         begin
           tmp.close
+          tmp_sol.close
         rescue => e
           # May already be closed
         end
         tmp.unlink
+        tmp_sol.unlink
       end
     end
     

@@ -60,7 +60,7 @@ module RubyCBC
       end
     end
     
-    def to_s
+    def to_s(exclude_constant = false)
       s = ""
       @weights.each do |var, weight|
         if s.empty?
@@ -69,6 +69,13 @@ module RubyCBC
           s << " - #{weight.abs} #{var}"
         else
           s << " + #{weight} #{var}"
+        end
+      end
+      unless exclude_constant
+        if @constant > 0
+          s << " + #{@constant}"
+        elsif @constant < 0
+          s << " - #{@constant.abs}"
         end
       end
       s
