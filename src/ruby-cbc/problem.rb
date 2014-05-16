@@ -18,23 +18,27 @@ module RubyCBC
     end
     alias_method :decision, :binary
     
-    def integer(range = nil)
-      if range.nil?
-        variable = IntegerVariable.new(next_variable_id)
-      else
-        variable = IntegerVariable.new(next_variable_id, range.begin, range.end)
+    def integer(min = nil, max = nil)
+      if min.kind_of?(Range)
+        range = min
+        min = range.begin
+        max = range.end
       end
+      
+      variable = IntegerVariable.new(next_variable_id, min, max)
       
       @variables << variable
       variable
     end
     
-    def variable(range = nil)
-      if range.nil?
-        variable = Variable.new(next_variable_id)
-      else
-        variable = Variable.new(next_variable_id, range.begin, range.end)
+    def variable(min = nil, max = nil)
+      if min.kind_of?(Range)
+        range = min
+        min = range.begin
+        max = range.end
       end
+      
+      variable = Variable.new(next_variable_id, min, max)
       
       @variables << variable
       variable
@@ -66,7 +70,7 @@ module RubyCBC
       out.puts "Bounds"
       @variables.each do |variable|
         next if variable.kind_of?(BinaryVariable)
-        out.puts [variable.min, variable.id, variable.max].compact.join(' <= ')
+        out.puts [variable.min || "-infinity", variable.id, variable.max || "infinity"].join(' <= ')
       end
       out.puts "Generals"
       @variables.each do |variable|
