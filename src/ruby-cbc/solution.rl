@@ -5,17 +5,8 @@
     raise ParseError, "Error parsing CBC solution near #{(data[p-10...p] + "[" + data[p] + "]" + data[p+1..p+10]).inspect} in state #{cs}";
   }
   
-  action start_number {
-    number = 0;
-    number_sign = 1;
-  }
-  
-  action negate {
-    number_sign = -1;
-  }
-  
-  action number_digit {
-    number = number * 10 + data[p].to_i;
+  action save_number {
+    number = data[saved_position...p].to_f;
   }
   
   action log_position {
@@ -27,17 +18,17 @@
   }
   
   action save_objective_value {
-    objective_value = number_sign * number
+    objective_value = number
     objective_value = -objective_value if problem.goal_inverted?
   }
   
   action save_coefficient {
-    variable_values[variable_name] = number_sign * number;
+    variable_values[variable_name] = number;
   }
   
   newline = "\n";
   
-  number = (('+' | '-' @negate)? (digit @number_digit)+ ) > start_number;
+  number = (('+' | '-')? digit+ ('.' digit+)? ) > log_position % save_number;
   
   variable_name = ([A-Za-z]+[A-Za-z0-9]+) >log_position %finish_variable;
   
@@ -69,7 +60,6 @@ module RubyCBC
     
     def self.parse(data, problem)
       number = 0
-      number_sign = 1
       saved_position = nil
       variable_name = nil
       objective_value = nil
