@@ -80,5 +80,13 @@ module RubyCBC
       end
       s
     end
+    
+    def extract_solution_value(solution)
+      v = 0
+      @weights.each do |var, weight|
+        v += var.extract_solution_value(solution) * weight
+      end
+      v
+    end
   end
 end

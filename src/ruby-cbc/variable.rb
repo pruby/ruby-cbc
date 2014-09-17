@@ -12,6 +12,10 @@ module RubyCBC
       Linear.from(self) + other
     end
     
+    def -(other)
+      Linear.from(self) - other
+    end
+    
     def *(other)
       Linear.from(self) * other
     end
@@ -24,8 +28,20 @@ module RubyCBC
       Linear.from(self) >= other
     end
     
+    def <(other)
+      Linear.from(self) < other
+    end
+    
+    def >(other)
+      Linear.from(self) > other
+    end
+    
     def to_s
       id.to_s
+    end
+    
+    def extract_solution_value(solution)
+      solution.variable_values[id.to_s]
     end
   end
   

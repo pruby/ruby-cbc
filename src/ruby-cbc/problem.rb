@@ -6,7 +6,7 @@ module RubyCBC
     
     def initialize
       @goal = nil
-      @mode = :maximise
+      @mode = :maximize
       @variables = []
       @constraints = []
     end
@@ -47,6 +47,7 @@ module RubyCBC
     def constraint(c)
       @constraints << c
     end
+    alias_method :<<, :constraint
     
     def maximise(goal)
       @goal = goal
@@ -60,6 +61,10 @@ module RubyCBC
     end
     alias_method :minimize, :minimise
     
+    def goal_inverted?
+      @mode == :maximize
+    end
+    
     def write_lp(out)
       out.puts @mode.to_s.capitalize
       out.puts "Goal: " + @goal.to_s
@@ -70,7 +75,7 @@ module RubyCBC
       out.puts "Bounds"
       @variables.each do |variable|
         next if variable.kind_of?(BinaryVariable)
-        out.puts [variable.min || "-infinity", variable.id, variable.max || "infinity"].join(' <= ')
+        out.puts [variable.min || "-inf", variable.id, variable.max || "inf"].join(' <= ')
       end
       out.puts "Generals"
       @variables.each do |variable|
@@ -87,7 +92,7 @@ module RubyCBC
       out.puts "End"
     end
     
-    def solve
+    def solve!
       tmp = Tempfile.new(['lp', '.lp'])
       tmp_sol = Tempfile.new(['lp', '.sol'])
       tmp_sol.close
@@ -98,7 +103,7 @@ module RubyCBC
         
         `cbc #{tmp.path} quiet branch solution #{tmp_sol.path}`
         @result_lines = File.read(tmp_sol.path)
-        puts @result_lines
+        RubyCBC::Solution.parse(@result_lines, self)
       ensure
         begin
           tmp.close
@@ -118,3 +123,4 @@ module RubyCBC
     end
   end
 end
+
