@@ -36,7 +36,11 @@
   
   solution_line = space* number space+ variable_name space+ number %save_coefficient space+ number space* :> newline;
   
-  main := (optimum solution_line**) @/raise_error $!raise_error;
+  found_solution = optimum solution_line**;
+  
+  infeasible = "Infeasible" @{return};
+  
+  main := (found_solution | infeasible) @/raise_error $!raise_error;
 }%%
 
 module RubyCBC
