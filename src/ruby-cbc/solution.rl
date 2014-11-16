@@ -28,7 +28,7 @@
   
   newline = "\n";
   
-  number = (('+' | '-')? digit+ ('.' digit+)? ) > log_position % save_number;
+  number = (('+' | '-')? digit+ ('.' digit+)? ('e' ('+' | '-') digit+)? ) > log_position % save_number;
   
   variable_name = ([A-Za-z]+[A-Za-z0-9]+) >log_position %finish_variable;
   
@@ -40,7 +40,9 @@
   
   infeasible = "Infeasible" @{return};
   
-  main := (found_solution | infeasible) @/raise_error $!raise_error;
+  timeout = "Stopped on iterations" @{return};
+  
+  main := (found_solution | infeasible | timeout) @/raise_error $!raise_error;
 }%%
 
 module RubyCBC
