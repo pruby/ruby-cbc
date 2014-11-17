@@ -26,21 +26,27 @@
     variable_values[variable_name] = number;
   }
   
+  action mark_optimal {
+    is_optimal = true
+  }
+  
   newline = "\n";
   
   number = (('+' | '-')? digit+ ('.' digit+)? ('e' ('+' | '-') digit+)? ) > log_position % save_number;
   
   variable_name = ([A-Za-z]+[A-Za-z0-9]+) >log_position %finish_variable;
   
-  optimum = "Optimal - objective value" space+ number %save_objective_value space* :> newline;
+  objective_value = " - objective value" space+ number %save_objective_value space* :> newline;
   
   solution_line = space* number space+ variable_name space+ number %save_coefficient space+ number space* :> newline;
   
-  found_solution = optimum solution_line**;
+  optimum = "Optimal" @mark_optimal objective_value solution_line**;
+  
+  found_solution = optimum;
+  
+  timeout = "Stopped on " ("iterations" | "time") objective_value solution_line**;
   
   infeasible = "Infeasible" @{return};
-  
-  timeout = "Stopped on iterations" @{return};
   
   main := (found_solution | infeasible | timeout) @/raise_error $!raise_error;
 }%%
@@ -54,14 +60,19 @@ module RubyCBC
     
     attr_reader :problem, :objective_value, :variable_values
     
-    def initialize(problem, objective_value, variable_values)
+    def initialize(problem, objective_value, variable_values, optimal)
       @problem = problem
       @objective_value = objective_value
       @variable_values = variable_values
+      @optimal = optimal
     end
     
     def [](v)
       v.extract_solution_value(self)
+    end
+    
+    def optimal?
+      @optimal
     end
     
     def self.parse(data, problem)
@@ -70,6 +81,7 @@ module RubyCBC
       variable_name = nil
       objective_value = nil
       variable_values = {}
+      is_optimal = false
       
       %% write init;
       
@@ -78,7 +90,7 @@ module RubyCBC
       
       %% write exec;
       
-      Solution.new(problem, objective_value, variable_values)
+      Solution.new(problem, objective_value, variable_values, is_optimal)
     end
   end
 end

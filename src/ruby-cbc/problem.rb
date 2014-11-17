@@ -92,7 +92,7 @@ module RubyCBC
       out.puts "End"
     end
     
-    def solve!
+    def solve!(options = {})
       tmp = Tempfile.new(['lp', '.lp'])
       tmp_sol = Tempfile.new(['lp', '.sol'])
       tmp_sol.close
@@ -101,7 +101,11 @@ module RubyCBC
         write_lp(tmp)
         tmp.close
         
-        `cbc #{tmp.path} quiet branch solution #{tmp_sol.path}`
+        if options[:timeout]
+          `cbc #{tmp.path} quiet seconds '#{options[:timeout]}' branch solution #{tmp_sol.path}`
+        else
+          `cbc #{tmp.path} quiet branch solution #{tmp_sol.path}`
+        end
         @result_lines = File.read(tmp_sol.path)
         RubyCBC::Solution.parse(@result_lines, self)
       ensure
