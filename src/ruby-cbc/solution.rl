@@ -42,13 +42,15 @@
   
   optimum = "Optimal" @mark_optimal objective_value solution_line**;
   
-  found_solution = optimum;
+  timeout = "Stopped on " ("iterations" | "time" | "iterations or time") objective_value solution_line**;
   
-  timeout = "Stopped on " ("iterations" | "time") objective_value solution_line**;
+  found_solution = optimum | timeout;
   
   infeasible = "Infeasible" @{return};
   
-  main := (found_solution | infeasible | timeout) @/raise_error $!raise_error;
+  unbounded = "Unbounded" @{return};
+  
+  main := (found_solution | infeasible | unbounded) @/raise_error $!raise_error;
 }%%
 
 module RubyCBC

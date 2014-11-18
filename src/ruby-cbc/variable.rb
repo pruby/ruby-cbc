@@ -41,7 +41,7 @@ module RubyCBC
     end
     
     def extract_solution_value(solution)
-      solution.variable_values[id.to_s]
+      solution.variable_values[id.to_s] || 0
     end
   end
   
