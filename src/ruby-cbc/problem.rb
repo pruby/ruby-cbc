@@ -101,11 +101,18 @@ module RubyCBC
         write_lp(tmp)
         tmp.close
         
+        extra_options = []
+        
         if options[:timeout]
-          `cbc #{tmp.path} quiet seconds '#{options[:timeout]}' branch solution #{tmp_sol.path}`
-        else
-          `cbc #{tmp.path} quiet branch solution #{tmp_sol.path}`
+          extra_options << "seconds"
+          extra_options << options[:timeout]
         end
+        
+        if options[:threads]
+          extra_options << "threads"
+          extra_options << options[:threads]
+        end
+        `cbc #{tmp.path} quiet #{extra_options.join(' ')} branch solution #{tmp_sol.path}`
         @result_lines = File.read(tmp_sol.path)
         RubyCBC::Solution.parse(@result_lines, self)
       ensure
